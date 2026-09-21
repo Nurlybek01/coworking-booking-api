@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: coworking-booking-api
+
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/coworking_db
+    username: nurlybeknurmukhan
+    password: ""
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
