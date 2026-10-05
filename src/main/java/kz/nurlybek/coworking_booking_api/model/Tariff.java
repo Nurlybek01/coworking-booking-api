@@ -9,6 +9,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -41,6 +43,10 @@ public class Tariff {
     @Column(nullable = false)
     @Builder.Default
     private boolean active = true;
+
+    @OneToMany(mappedBy = "tariff")
+    @Builder.Default
+    private List<Booking> bookings = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

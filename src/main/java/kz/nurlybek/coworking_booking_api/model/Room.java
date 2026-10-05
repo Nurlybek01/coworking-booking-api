@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -41,6 +43,10 @@ public class Room {
     @JoinColumn(name = "location_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_room_location"))
     private Location location;
+
+    @OneToMany(mappedBy = "room")
+    @Builder.Default
+    private List<Booking> bookings = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
