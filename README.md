@@ -140,4 +140,20 @@ git checkout -b feature/booking-service
 
 ## Статус проекта
 
-На текущем этапе создан базовый Spring Boot-проект и настроено подключение к PostgreSQL.
+Проект разрабатывается поэтапно. Текущий прогресс:
+
+- [x] Шаг 1.1 — Зависимости (pom.xml)
+- [x] Шаг 1.2 — Конфигурация (application.yaml)
+- [x] Шаг 1.3 — Логирование (log4j2.xml)
+- [x] Шаг 1.4 — Структура пакетов
+- [x] Шаг 1.5 — Enum-классы (Role, BookingStatus, PaymentStatus, PaymentMethod, WorkplaceType)
+- [ ] Шаг 1.6 — Сущности User, Location, Room
+- [ ] Шаг 1.7 — Сущности Workplace, Tariff, Service
+- [ ] Шаг 1.8 — Сущности Booking, Payment, Review
+- [ ] Шаг 1.9 — Проверка схемы БД
+
+### Что уже работает
+
+- Подключение к PostgreSQL
+- JPA/Hibernate с автосозданием схемы (`ddl-auto: update`)
+- Логирование через Log4j2 в три файла: `logs/app.log`, `logs/error.log`, `logs/audit.log`
