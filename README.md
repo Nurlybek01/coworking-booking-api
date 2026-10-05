@@ -2,27 +2,30 @@
 
 Backend-система бронирования рабочих мест и переговорных комнат в коворкинге.
 
-Проект разработан на Java и Spring Boot в рамках семестровой практической работы по дисциплине «Промышленное программирование».
+Проект разработан на Java и Spring Boot.
 
 ## Технологии
 
 - Java 25
 - Spring Boot 4.1.1
-- Spring Web
-- Spring Data JPA
+- Spring Web (WebMVC)
+- Spring Data JPA / Hibernate
+- Spring Security + JWT
 - PostgreSQL
+- Log4j2
+- Apache POI (Excel, Word)
 - Maven
-- JUnit
+- JUnit 5 / Mockito
 - Lombok
 
 ## Требования
 
 Перед запуском необходимо установить:
 
-- JDK 25 или совместимую версию Java;
-- Maven 3.9 или выше;
-- PostgreSQL 14 или выше;
-- IntelliJ IDEA;
+- JDK 25 или совместимую версию Java
+- Maven 3.9 или выше
+- PostgreSQL 14 или выше
+- IntelliJ IDEA
 - Git.
 
 ## Настройка базы данных
@@ -49,7 +52,7 @@ spring:
     password: your_postgres_password
 ```
 
-Не добавляйте реальные пароли в GitHub.
+Не добавляйте реальные пароли в GitHub!
 
 ## Запуск проекта
 
@@ -83,14 +86,18 @@ http://localhost:8080
 ```text
 src/main/java
 └── kz.nurlybek.coworking_booking_api
-    ├── controller
-    ├── service
-    ├── repository
-    ├── model
-    ├── dto
-    ├── exception
-    ├── security
-    └── report
+    ├── audit            — аудит ключевых действий
+    ├── config           — конфигурация Spring
+    ├── controller       — REST-контроллеры
+    ├── dto              — DTO (request / response)
+    ├── exception        — кастомные исключения и GlobalExceptionHandler
+    ├── model            — JPA-сущности
+    │   └── enums        — перечисления (Role, BookingStatus, PaymentStatus, PaymentMethod, WorkplaceType)
+    ├── report           — генерация Excel/Word через Apache POI
+    ├── repository       — Spring Data JPA репозитории
+    ├── security         — JWT, UserDetailsService, SecurityConfig
+    └── service          — бизнес-логика
+        └── impl         — реализации сервисов
 ```
 
 ## Роли пользователей
@@ -112,6 +119,28 @@ src/main/java
 - отзывы;
 - Excel- и Word-отчеты;
 - фильтрация, сортировка и пагинация.
+
+## Схема базы данных
+
+10 таблиц, 6 типов связей и ограничений (1:N, N:M, 1:1, unique, foreign key, check).
+
+| Таблица | Назначение | Ключевые связи |
+|---|---|---|
+| `users` | Пользователи (ADMIN, MANAGER, CLIENT) | unique (email) |
+| `locations` | Локации коворкинга | 1:N → rooms, workplaces |
+| `rooms` | Переговорные комнаты | N:1 → locations; check (capacity >= 1) |
+| `workplaces` | Рабочие места | N:1 → locations, rooms; unique (location_id, number) |
+| `tariffs` | Тарифы | 1:N → bookings |
+| `services` | Дополнительные услуги | N:M → bookings |
+| `bookings` | Бронирования | N:1 → user/room/workplace/tariff; check (status) |
+| `booking_services` | Связь брони и услуг (N:M) | unique (booking_id, service_id) |
+| `payments` | Платежи | 1:1 → bookings; unique (booking_id) |
+| `reviews` | Отзывы | N:1 → user, room; unique (user_id, room_id); check (rating 1..5) |
+
+**Ключевые индексы:**
+
+- `idx_booking_time` on `bookings(start_time, end_time)` — для быстрого поиска пересечений
+- `idx_booking_user` on `bookings(user_id)`
 
 ## Командная работа
 
@@ -140,7 +169,7 @@ git checkout -b feature/booking-service
 
 ## Статус проекта
 
-Проект разрабатывается поэтапно. Текущий прогресс:
+### Этап 1 — База данных (ГОТОВО)
 
 - [x] Шаг 1.1 — Зависимости (pom.xml)
 - [x] Шаг 1.2 — Конфигурация (application.yaml)
@@ -150,11 +179,46 @@ git checkout -b feature/booking-service
 - [x] Шаг 1.6 — Сущности User, Location, Room
 - [x] Шаг 1.7 — Сущности Workplace, Tariff, Service
 - [x] Шаг 1.8 — Сущности Booking, Payment, Review
-- [ ] Шаг 1.9 — Проверка схемы БД
+- [x] Шаг 1.9 — Проверка схемы БД (10 таблиц)
+
+### Этап 2 — Репозитории (в работе)
+
+- [ ] Шаг 2.1 — UserRepository, LocationRepository, RoomRepository
+- [ ] Шаг 2.2 — WorkplaceRepository, TariffRepository, ServiceRepository
+- [ ] Шаг 2.3 — BookingRepository (с поиском доступных ресурсов и статистикой)
+- [ ] Шаг 2.4 — PaymentRepository, ReviewRepository
+
+### Этап 3 — Сервисы и DTO
+
+- [ ] DTO и мапперы
+- [ ] Кастомные исключения + GlobalExceptionHandler
+- [ ] Сервисный слой с @Transactional
+
+### Этап 4 — REST API
+
+- [ ] 20+ REST-endpoint'ов
+- [ ] Фильтрация, сортировка, пагинация
+- [ ] Валидация запросов
+
+### Этап 5 — Безопасность и JWT
+
+- [ ] Spring Security
+- [ ] JWT-аутентификация
+- [ ] Роли ADMIN / MANAGER / CLIENT
+
+### Этап 6 — Отчёты (Apache POI)
+
+- [ ] Excel: загрузка помещений и выручка
+- [ ] Word: подтверждение бронирования
+
+### Этап 7 — Тесты и логирование
+
+- [ ] 25+ JUnit-тестов бизнес-логики
+- [ ] Аудит ключевых действий в `audit.log`
 
 ### Что уже работает
 
-- Подключение к PostgreSQL
-- JPA/Hibernate с автосозданием схемы (`ddl-auto: update`)
+- Подключение к PostgreSQL и автосоздание схемы (Hibernate `ddl-auto: update`)
 - Логирование через Log4j2 в три файла: `logs/app.log`, `logs/error.log`, `logs/audit.log`
-- Сущности User, Location, Room; Hibernate создаёт таблицы и констрейнты автоматически
+- 9 JPA-сущностей с валидацией, связями и констрейнтами (10 таблиц в БД)
+- Проверка инвариантов брони (`end_time > start_time`, наличие ресурса) через `@PrePersist` / `@PreUpdate`
