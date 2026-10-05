@@ -147,7 +147,7 @@ git checkout -b feature/booking-service
 - [x] Шаг 1.3 — Логирование (log4j2.xml)
 - [x] Шаг 1.4 — Структура пакетов
 - [x] Шаг 1.5 — Enum-классы (Role, BookingStatus, PaymentStatus, PaymentMethod, WorkplaceType)
-- [ ] Шаг 1.6 — Сущности User, Location, Room
+- [x] Шаг 1.6 — Сущности User, Location, Room
 - [ ] Шаг 1.7 — Сущности Workplace, Tariff, Service
 - [ ] Шаг 1.8 — Сущности Booking, Payment, Review
 - [ ] Шаг 1.9 — Проверка схемы БД
@@ -157,3 +157,4 @@ git checkout -b feature/booking-service
 - Подключение к PostgreSQL
 - JPA/Hibernate с автосозданием схемы (`ddl-auto: update`)
 - Логирование через Log4j2 в три файла: `logs/app.log`, `logs/error.log`, `logs/audit.log`
+- Сущности User, Location, Room; Hibernate создаёт таблицы и констрейнты автоматически
