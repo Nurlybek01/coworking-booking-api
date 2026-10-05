@@ -44,6 +44,10 @@ public class Location {
     @Builder.Default
     private List<Room> rooms = new ArrayList<>();
 
+    @OneToMany(mappedBy = "location")
+    @Builder.Default
+    private List<Workplace> workplaces = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -148,7 +148,7 @@ git checkout -b feature/booking-service
 - [x] Шаг 1.4 — Структура пакетов
 - [x] Шаг 1.5 — Enum-классы (Role, BookingStatus, PaymentStatus, PaymentMethod, WorkplaceType)
 - [x] Шаг 1.6 — Сущности User, Location, Room
-- [ ] Шаг 1.7 — Сущности Workplace, Tariff, Service
+- [x] Шаг 1.7 — Сущности Workplace, Tariff, Service
 - [ ] Шаг 1.8 — Сущности Booking, Payment, Review
 - [ ] Шаг 1.9 — Проверка схемы БД
 
