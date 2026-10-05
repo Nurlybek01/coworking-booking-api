@@ -13,10 +13,34 @@ spring:
       ddl-auto: update
     show-sql: true
     open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          time_zone: UTC
+
+  jackson:
+    default-property-inclusion: non_null
 
 server:
   port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+app:
+  jwt:
+    secret: "ZGV2LW9ubHktc2VjcmV0LWNoYW5nZS1tZS1pbi1wcm9kdWN0aW9uLTEyMzQ1Njc4OTA="
+    access-token-ttl: 3600000
+    refresh-token-ttl: 604800000
+  booking:
+    min-duration-minutes: 30
+    max-duration-hours: 12
+    open-hour: 8
+    close-hour: 22
+
+logging:
+  level:
+    root: INFO
+    kz.nurlybek: DEBUG
+    AUDIT: INFO
