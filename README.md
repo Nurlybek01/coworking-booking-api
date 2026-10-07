@@ -183,7 +183,7 @@ git checkout -b feature/booking-service
 
 ### Этап 2 — Репозитории (в работе)
 
-- [ ] Шаг 2.1 — UserRepository, LocationRepository, RoomRepository
+- [x] Шаг 2.1 — UserRepository, LocationRepository, RoomRepository
 - [ ] Шаг 2.2 — WorkplaceRepository, TariffRepository, ServiceRepository
 - [ ] Шаг 2.3 — BookingRepository (с поиском доступных ресурсов и статистикой)
 - [ ] Шаг 2.4 — PaymentRepository, ReviewRepository
