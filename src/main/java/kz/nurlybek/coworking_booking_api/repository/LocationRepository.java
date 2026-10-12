@@ -15,4 +15,8 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
     List<Location> findByActiveTrue();
 
     Page<Location> findByCity(String city, Pageable pageable);
+
+    Page<Location> findByActiveTrue(Pageable pageable);
+
+    Page<Location> findByCityIgnoreCaseAndActiveTrue(String city, Pageable pageable);
 }

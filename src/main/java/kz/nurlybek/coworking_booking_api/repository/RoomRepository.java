@@ -1,16 +1,19 @@
 package kz.nurlybek.coworking_booking_api.repository;
 
+import jakarta.persistence.LockModeType;
 import kz.nurlybek.coworking_booking_api.model.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificationExecutor<Room> {
@@ -18,6 +21,21 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
     List<Room> findByLocationId(Long locationId);
 
     Page<Room> findByLocationIdAndActiveTrue(Long locationId, Pageable pageable);
+
+    @Query("""
+            SELECT r FROM Room r
+            WHERE r.active = true
+              AND (:locationId IS NULL OR r.location.id = :locationId)
+              AND (:minCapacity IS NULL OR r.capacity >= :minCapacity)
+            """)
+    Page<Room> search(@Param("locationId") Long locationId,
+                      @Param("minCapacity") Integer minCapacity,
+                      Pageable pageable);
+
+    // См. WorkplaceRepository#findByIdForUpdate: блокировка против гонки при бронировании.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Room r WHERE r.id = :id")
+    Optional<Room> findByIdForUpdate(@Param("id") Long id);
 
     @Query("""
             SELECT r FROM Room r
