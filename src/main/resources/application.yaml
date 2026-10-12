@@ -16,8 +16,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # Подгружает ленивые связи пачками вместо N+1 при маппинге страниц.
+        default_batch_fetch_size: 50
         jdbc:
           time_zone: UTC
+
+  data:
+    web:
+      pageable:
+        max-page-size: 100
 
   jackson:
     default-property-inclusion: non_null
@@ -30,7 +37,8 @@ server:
 
 app:
   jwt:
-    secret: "ZGV2LW9ubHktc2VjcmV0LWNoYW5nZS1tZS1pbi1wcm9kdWN0aW9uLTEyMzQ1Njc4OTA="
+    # В проде задаётся через JWT_SECRET; значение по умолчанию — только для локальной разработки.
+    secret: ${JWT_SECRET:ZGV2LW9ubHktc2VjcmV0LWNoYW5nZS1tZS1pbi1wcm9kdWN0aW9uLTEyMzQ1Njc4OTA=}
     access-token-ttl: 3600000
     refresh-token-ttl: 604800000
   booking:
@@ -38,6 +46,11 @@ app:
     max-duration-hours: 12
     open-hour: 8
     close-hour: 22
+  # Первый администратор создаётся при старте, только если задан ADMIN_PASSWORD.
+  bootstrap-admin:
+    email: ${ADMIN_EMAIL:admin@coworking.local}
+    password: ${ADMIN_PASSWORD:}
+    full-name: Administrator
 
 logging:
   level:
