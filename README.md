@@ -94,6 +94,9 @@ http://localhost:8080
 
 ## REST API
 
+Интерактивная документация (Swagger UI): http://localhost:8080/swagger-ui.html —
+выполните `POST /api/auth/login`, скопируйте `accessToken` и нажмите **Authorize**.
+
 Все ответы — JSON, ошибки — в формате [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457).
 Защищённые запросы требуют заголовок `Authorization: Bearer <accessToken>`.
 Списки поддерживают пагинацию и сортировку: `?page=0&size=20&sort=name,asc` (максимум 100 на страницу).

@@ -101,6 +101,14 @@ class BookingApiIntegrationTest {
     }
 
     @Test
+    void openApiDocsArePublic() throws Exception {
+        mvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/bookings']").exists())
+                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"));
+    }
+
+    @Test
     void clientCannotManageRooms() throws Exception {
         mvc.perform(withJson(post("/api/rooms"), registerClient(), """
                         {"name":"Red","capacity":2,"hourlyBasePrice":500,"locationId":1}"""))
