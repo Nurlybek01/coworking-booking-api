@@ -63,7 +63,7 @@ git clone <repository-url>
 cd coworking-booking-api
 ```
 
-Запустите тесты:
+Запустите тесты (PostgreSQL не нужен — тесты используют in-memory H2):
 
 ```bash
 mvn clean test
@@ -80,6 +80,68 @@ mvn spring-boot:run
 ```text
 http://localhost:8080
 ```
+
+### Переменные окружения
+
+| Переменная | Назначение | По умолчанию |
+|---|---|---|
+| `JWT_SECRET` | Base64-ключ подписи JWT (не короче 256 бит) | dev-ключ, **только для локальной разработки** |
+| `ADMIN_EMAIL` | Email первого администратора | `admin@coworking.local` |
+| `ADMIN_PASSWORD` | Пароль первого администратора; если не задан — админ не создаётся | — |
+
+Регистрация через API всегда создаёт `CLIENT`. Первый `ADMIN` создаётся при старте из
+`ADMIN_EMAIL` / `ADMIN_PASSWORD`, дальше роли назначаются через `PATCH /api/users/{id}`.
+
+## REST API
+
+Все ответы — JSON, ошибки — в формате [Problem Details (RFC 9457)](https://www.rfc-editor.org/rfc/rfc9457).
+Защищённые запросы требуют заголовок `Authorization: Bearer <accessToken>`.
+Списки поддерживают пагинацию и сортировку: `?page=0&size=20&sort=name,asc` (максимум 100 на страницу).
+
+| Метод | Путь | Доступ | Описание |
+|---|---|---|---|
+| POST | `/api/auth/register` | все | Регистрация клиента, возвращает токены |
+| POST | `/api/auth/login` | все | Вход |
+| POST | `/api/auth/refresh` | все | Обновление токенов по refresh-токену |
+| GET | `/api/users/me` | авторизованные | Текущий пользователь |
+| GET | `/api/users?role=` | ADMIN | Список пользователей |
+| GET | `/api/users/{id}` | ADMIN | Пользователь |
+| PATCH | `/api/users/{id}` | ADMIN | Смена роли / блокировка |
+| GET | `/api/locations?city=` | все | Локации |
+| GET / POST / PUT / DELETE | `/api/locations[/{id}]` | чтение — все, изменение — ADMIN, MANAGER | CRUD локаций |
+| GET | `/api/rooms?locationId=&minCapacity=` | все | Комнаты |
+| GET | `/api/rooms/available?from=&to=` | все | Свободные комнаты на интервал |
+| GET / POST / PUT / DELETE | `/api/rooms[/{id}]` | чтение — все, изменение — ADMIN | CRUD комнат |
+| GET | `/api/workplaces?locationId=&type=` | все | Рабочие места |
+| GET | `/api/workplaces/available?from=&to=` | все | Свободные места на интервал |
+| GET / POST / PUT / DELETE | `/api/workplaces[/{id}]` | чтение — все, изменение — ADMIN | CRUD рабочих мест |
+| GET / POST / PUT / DELETE | `/api/tariffs[/{id}]` | чтение — все, изменение — ADMIN | CRUD тарифов |
+| GET / POST / PUT / DELETE | `/api/services[/{id}]` | чтение — все, изменение — ADMIN | CRUD доп. услуг |
+| POST | `/api/bookings` | авторизованные | Создать бронь |
+| GET | `/api/bookings?status=&roomId=&workplaceId=&locationId=&userId=&from=&to=` | авторизованные | Брони (клиент видит только свои) |
+| GET | `/api/bookings/{id}` | владелец, ADMIN, MANAGER | Бронь |
+| POST | `/api/bookings/{id}/cancel` | владелец, ADMIN, MANAGER | Отмена (оплата возвращается) |
+| POST | `/api/bookings/{id}/complete` | ADMIN, MANAGER | Завершение |
+| POST | `/api/bookings/{id}/payment` | владелец, ADMIN, MANAGER | Оплата |
+| GET | `/api/bookings/{id}/payment` | владелец, ADMIN, MANAGER | Платёж по брони |
+| GET | `/api/bookings/{id}/confirmation` | владелец, ADMIN, MANAGER | Word-подтверждение брони |
+| GET / POST | `/api/rooms/{roomId}/reviews` | чтение — все, отзыв — авторизованные | Отзывы о комнате |
+| GET | `/api/reports/occupancy?from=&to=` | ADMIN, MANAGER | Excel: загрузка, выручка, статусы |
+
+DELETE для ресурсов каталога — мягкое удаление (`active = false`): на них ссылаются брони.
+
+### Правила бронирования
+
+- бронируется ровно один ресурс: `roomId` **или** `workplaceId`;
+- начало — в будущем, длительность от 30 минут до 12 часов (`app.booking.*`);
+- в пределах рабочих часов локации (или 08:00–22:00 по умолчанию);
+- пересечение с неотменённой бронью того же ресурса запрещено (409); параллельные запросы
+  сериализуются блокировкой строки ресурса;
+- стоимость = ставка × длительность (поминутно) + цена доп. услуг; ставка — из тарифа, если он
+  указан и действует в этот день, иначе базовая цена ресурса;
+- жизненный цикл: `PENDING` → оплата → `CONFIRMED` → `COMPLETED`; отмена из `PENDING`/`CONFIRMED`
+  (клиент — только до начала брони);
+- отзыв о комнате — только после завершённой брони, один на пользователя.
 
 ## Структура проекта
 
@@ -181,40 +243,40 @@ git checkout -b feature/booking-service
 - [x] Шаг 1.8 — Сущности Booking, Payment, Review
 - [x] Шаг 1.9 — Проверка схемы БД (10 таблиц)
 
-### Этап 2 — Репозитории (в работе)
+### Этап 2 — Репозитории (ГОТОВО)
 
 - [x] Шаг 2.1 — UserRepository, LocationRepository, RoomRepository
-- [ ] Шаг 2.2 — WorkplaceRepository, TariffRepository, ServiceRepository
-- [ ] Шаг 2.3 — BookingRepository (с поиском доступных ресурсов и статистикой)
-- [ ] Шаг 2.4 — PaymentRepository, ReviewRepository
+- [x] Шаг 2.2 — WorkplaceRepository, TariffRepository, ServiceRepository
+- [x] Шаг 2.3 — BookingRepository (с поиском доступных ресурсов и статистикой)
+- [x] Шаг 2.4 — PaymentRepository, ReviewRepository
 
-### Этап 3 — Сервисы и DTO
+### Этап 3 — Сервисы и DTO (ГОТОВО)
 
-- [ ] DTO и мапперы
-- [ ] Кастомные исключения + GlobalExceptionHandler
-- [ ] Сервисный слой с @Transactional
+- [x] DTO и мапперы
+- [x] Кастомные исключения + GlobalExceptionHandler
+- [x] Сервисный слой с @Transactional
 
-### Этап 4 — REST API
+### Этап 4 — REST API (ГОТОВО)
 
-- [ ] 20+ REST-endpoint'ов
-- [ ] Фильтрация, сортировка, пагинация
-- [ ] Валидация запросов
+- [x] 20+ REST-endpoint'ов
+- [x] Фильтрация, сортировка, пагинация
+- [x] Валидация запросов
 
-### Этап 5 — Безопасность и JWT
+### Этап 5 — Безопасность и JWT (ГОТОВО)
 
-- [ ] Spring Security
-- [ ] JWT-аутентификация
-- [ ] Роли ADMIN / MANAGER / CLIENT
+- [x] Spring Security
+- [x] JWT-аутентификация
+- [x] Роли ADMIN / MANAGER / CLIENT
 
-### Этап 6 — Отчёты (Apache POI)
+### Этап 6 — Отчёты (Apache POI) (ГОТОВО)
 
-- [ ] Excel: загрузка помещений и выручка
-- [ ] Word: подтверждение бронирования
+- [x] Excel: загрузка помещений и выручка
+- [x] Word: подтверждение бронирования
 
-### Этап 7 — Тесты и логирование
+### Этап 7 — Тесты и логирование (ГОТОВО)
 
-- [ ] 25+ JUnit-тестов бизнес-логики
-- [ ] Аудит ключевых действий в `audit.log`
+- [x] 25+ JUnit-тестов бизнес-логики (59 тестов: unit + `@DataJpaTest` + сквозной MockMvc)
+- [x] Аудит ключевых действий в `audit.log`
 
 ### Что уже работает
 
@@ -222,3 +284,5 @@ git checkout -b feature/booking-service
 - Логирование через Log4j2 в три файла: `logs/app.log`, `logs/error.log`, `logs/audit.log`
 - 9 JPA-сущностей с валидацией, связями и констрейнтами (10 таблиц в БД)
 - Проверка инвариантов брони (`end_time > start_time`, наличие ресурса) через `@PrePersist` / `@PreUpdate`
+- REST API с JWT-аутентификацией и ролями, бронирование с проверкой пересечений и расчётом стоимости
+- Оплата и возврат, отзывы, Excel- и Word-отчёты

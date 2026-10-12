@@ -1,0 +1,35 @@
+# Тестовая конфигурация: in-memory H2 в режиме совместимости с PostgreSQL, без внешней БД.
+spring:
+  datasource:
+    url: jdbc:h2:mem:coworking_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 50
+
+  data:
+    web:
+      pageable:
+        max-page-size: 100
+
+app:
+  jwt:
+    secret: "dGVzdC1vbmx5LXNlY3JldC1rZXktZm9yLWp3dC10ZXN0cy0xMjM0NTY3ODkw"
+    access-token-ttl: 3600000
+    refresh-token-ttl: 604800000
+  booking:
+    min-duration-minutes: 30
+    max-duration-hours: 12
+    open-hour: 8
+    close-hour: 22
+  bootstrap-admin:
+    email: admin@test.local
+    password: admin-password
+    full-name: Test Admin
