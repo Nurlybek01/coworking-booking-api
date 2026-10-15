@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="kz.nurlybek.coworking.client.controller.LoginController"
+      alignment="CENTER" spacing="14" styleClass="login-root">
+
+    <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+    <Label text="Coworking Booking" styleClass="title">
+        <font><Font size="22"/></font>
+    </Label>
+    <Label text="Вход в систему" styleClass="subtitle"/>
+
+    <TextField fx:id="emailField" promptText="Email" styleClass="input"/>
+    <PasswordField fx:id="passwordField" promptText="Пароль" styleClass="input"/>
+
+    <Button fx:id="loginButton" text="Войти" defaultButton="true"
+            onAction="#onLogin" styleClass="primary-button" maxWidth="Infinity"/>
+
+    <Label fx:id="errorLabel" styleClass="error-label" wrapText="true"/>
+
+</VBox>

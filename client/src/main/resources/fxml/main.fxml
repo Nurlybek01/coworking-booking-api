@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="kz.nurlybek.coworking.client.controller.MainController">
+
+    <top>
+        <MenuBar>
+            <Menu text="Файл">
+                <MenuItem text="Выйти" onAction="#onLogout"/>
+            </Menu>
+            <Menu text="Каталог">
+                <MenuItem text="Локации"/>
+                <MenuItem text="Помещения"/>
+                <MenuItem text="Тарифы"/>
+                <MenuItem text="Услуги"/>
+            </Menu>
+            <Menu text="Работа">
+                <MenuItem text="Новая бронь"/>
+                <MenuItem text="Бронирования"/>
+                <MenuItem text="Оплата"/>
+            </Menu>
+            <Menu text="Аналитика">
+                <MenuItem text="Dashboard"/>
+                <MenuItem text="Отчёты"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="12">
+            <Label text="Главное окно" styleClass="title">
+                <font><Font size="26"/></font>
+            </Label>
+            <Label fx:id="welcomeLabel" styleClass="subtitle"/>
+            <Label text="Используйте меню сверху для навигации." styleClass="hint"/>
+        </VBox>
+    </center>
+
+</BorderPane>
